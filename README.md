@@ -66,24 +66,35 @@ graph LR;
 Refer to the [docs](https://docs.bolna.ai/providers) for a deepdive into all supported providers.
 
 
-## Local example setup [will be moved to a different repository]
-A basic local setup includes usage of [Twilio](local_setup/telephony_server/twilio_api_server.py) or [Plivo](local_setup/telephony_server/plivo_api_server.py) for telephony. We have dockerized the setup in `local_setup/`. One will need to populate an environment `.env` file from `.env.sample`.
+## Local Setup
 
-The setup consists of four containers:
+A basic local setup includes usage of [Twilio](telephony_server/twilio_api_server.py) or [Plivo](telephony_server/plivo_api_server.py) for telephony. We have dockerized the setup.
 
-1. Telephony web server:
-   * Choosing Twilio: for initiating the calls one will need to set up a [Twilio account](https://www.twilio.com/docs/usage/tutorials/how-to-use-your-free-trial-account)
-   * Choosing Plivo: for initiating the calls one will need to set up a [Plivo account](https://www.plivo.com/)
-2. Bolna server: for creating and handling agents 
-3. `ngrok`: for tunneling. One will need to add the `authtoken` to `ngrok-config.yml`
-4. `redis`: for persisting agents & prompt data
+### Prerequisites
+
+1.  **Docker and Docker Compose:** Make sure you have Docker with Docker Compose V2 installed.
+2.  **Ngrok:** You will need an ngrok account to expose the local server to the internet.
+    - Get your authtoken from the [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken).
+    - Add the authtoken to `ngrok-config.yml`.
+
+### Configuration
+
+1.  **Environment Variables:**
+    -   Create a `.env` file by copying the `.env.sample` file:
+        ```bash
+        cp .env.sample .env
+        ```
+    -   Populate the `.env` file with your credentials for the services you want to use (e.g., OpenAI, Twilio, Plivo).
+
+2.  **Ngrok:**
+    -   Open the `ngrok-config.yml` file.
+    -   Replace `<your-auth-token>` with your actual ngrok authtoken.
 
 ### Quick Start
 
 The easiest way to get started is to use the provided script:
 
 ```bash
-cd local_setup
 chmod +x start.sh
 ./start.sh
 ```
@@ -94,20 +105,20 @@ This script will check for Docker dependencies, build all services with BuildKit
 
 Alternatively, you can manually build and run the services:
 
-1. Make sure you have Docker with Docker Compose V2 installed
-2. Enable BuildKit for faster builds:
-   ```bash
-   export DOCKER_BUILDKIT=1
-   export COMPOSE_DOCKER_CLI_BUILD=1
-   ```
-3. Build the images:
-   ```bash
-   docker compose build
-   ```
-4. Run the services:
-   ```bash
-   docker compose up -d
-   ```
+1.  Make sure you have Docker with Docker Compose V2 installed.
+2.  Enable BuildKit for faster builds:
+    ```bash
+    export DOCKER_BUILDKIT=1
+    export COMPOSE_DOCKER_CLI_BUILD=1
+    ```
+3.  Build the images:
+    ```bash
+    docker compose build
+    ```
+4.  Run the services:
+    ```bash
+    docker compose up -d
+    ```
 
 To run specific services only:
 
