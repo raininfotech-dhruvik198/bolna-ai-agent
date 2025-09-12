@@ -139,49 +139,75 @@ You may try out different agents from [example.bolna.dev](https://examples.bolna
 You can populate the `.env` file to use your own keys for providers.
 
 <details>
-
 <summary>ASR Providers</summary><br>
-These are the current supported ASRs Providers:
+You can use commercial ASR providers or a self-hosted open-source model.
 
+#### Commercial ASR
 | Provider     | Environment variable to be added in `.env` file |
 |--------------|-------------------------------------------------|
 | Deepgram     | `DEEPGRAM_AUTH_TOKEN`                           |
+| Azure        | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`       |
+
+#### Open-Source ASR (Whisper)
+This platform includes a self-hosted Whisper service. To use it:
+1.  In your agent configuration, set the `transcriber_model` to `"whisper"`.
+2.  The `docker-compose.yml` file will automatically start the Whisper server.
+3.  The connection URL is pre-configured in the `.env` file (`WHISPER_WEBSOCKET_URL`).
 
 </details>
 &nbsp;<br>
 
 <details>
 <summary>LLM Providers</summary><br>
-Bolna uses LiteLLM package to support multiple LLM integrations.
+Bolna uses the `LiteLLM` package to support a wide range of LLM integrations, including both commercial and open-source models.
 
-These are the current supported LLM Provider Family:
-https://github.com/bolna-ai/bolna/blob/10fa26e5985d342eedb5a8985642f12f1cf92a4b/bolna/providers.py#L30-L47
+#### Commercial LLMs (e.g., OpenAI, Cohere)
+To use a commercial LLM, you typically need to provide an API key. Set the following in your `.env` file:
+- `OPENAI_MODEL`: The specific model you want to use (e.g., `gpt-3.5-turbo`).
+- `LITELLM_MODEL_API_KEY`: Your API key for the service.
 
-For LiteLLM based LLMs, add either of the following to the `.env` file depending on your use-case:<br><br>
-`LITELLM_MODEL_API_KEY`: API Key of the LLM<br>
-`LITELLM_MODEL_API_BASE`: URL of the hosted LLM<br>
-`LITELLM_MODEL_API_VERSION`: API VERSION for LLMs like Azure
+#### Open-Source LLMs (e.g., Llama 2, Mixtral)
+You can run open-source LLMs locally using tools like [Ollama](https://ollama.ai/) or a [vLLM server](https://github.com/vllm-project/vllm). To connect to a self-hosted LLM, you need to provide the model name and its API endpoint.
 
-For LLMs hosted via VLLM, add the following to the `.env` file:<br>
-`VLLM_SERVER_BASE_URL`: URL of the hosted LLM using VLLM
+1.  **Set the model name** in your agent's configuration JSON (e.g., `agent_data/contextual_agent.json`).
+2.  **Set the API base URL** in your `.env` file. This tells Bolna where to send the requests.
+
+**Example for Ollama:**
+```
+# .env file
+LITELLM_MODEL_API_BASE=http://host.docker.internal:11434
+```
+In your agent configuration, you would set the `llm_model` to `"ollama/llama2"` or another model served by Ollama.
+
+**Example for a generic vLLM server:**
+```
+# .env file
+LITELLM_MODEL_API_BASE=http://your-vllm-server-ip:8000/v1
+```
+For most self-hosted models, you do not need to provide an API key.
 
 </details>
 &nbsp;<br>
 
 <details>
-
 <summary>TTS Providers</summary><br>
-These are the current supported TTS Providers:
-https://github.com/bolna-ai/bolna/blob/c8a0d1428793d4df29133119e354bc2f85a7ca76/bolna/providers.py#L7-L14
+You can use commercial TTS providers or a self-hosted open-source model.
 
+#### Commercial TTS
 | Provider   | Environment variable to be added in `.env` file  |
 |------------|--------------------------------------------------|
 | AWS Polly  | Accessed from system wide credentials via ~/.aws |
 | Elevenlabs | `ELEVENLABS_API_KEY`                             |
 | OpenAI     | `OPENAI_API_KEY`                                 |
 | Deepgram   | `DEEPGRAM_AUTH_TOKEN`                            |
-| Cartesia   | `CARTESIA_API_KEY`                            |
-| Smallest   | `SMALLEST_API_KEY`                            |
+| Cartesia   | `CARTESIA_API_KEY`                               |
+| Smallest   | `SMALLEST_API_KEY`                               |
+
+#### Open-Source TTS (Coqui XTTS)
+This platform includes a self-hosted Coqui XTTS server for high-quality, open-source text-to-speech. To use it:
+1.  In your agent configuration, set the `synthesizer_model` to `"xtts"`.
+2.  The `docker-compose.yml` file will automatically start the XTTS server. **Note:** This service requires a GPU with CUDA support.
+3.  The connection URL is pre-configured in the `.env` file (`XTTS_SERVER_URL`).
 
 </details>
 &nbsp;<br>
