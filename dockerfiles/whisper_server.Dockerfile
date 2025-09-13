@@ -13,7 +13,8 @@ RUN git clone https://github.com/ggerganov/whisper.cpp.git /opt/whisper.cpp
 
 # Build the server
 WORKDIR /opt/whisper.cpp
-RUN make server
+RUN cmake -B build
+RUN cmake --build build -j --config Release
 
 # Download a model
 RUN bash ./models/download-ggml-model.sh base.en
@@ -22,4 +23,4 @@ RUN bash ./models/download-ggml-model.sh base.en
 EXPOSE 9090
 
 # Command to run the server
-CMD ["./server", "-m", "models/ggml-base.en.bin", "-t", "8", "--host", "0.0.0.0", "--port", "9090"]
+CMD ["./build/bin/server", "-m", "models/ggml-base.en.bin", "-t", "8", "--host", "0.0.0.0", "--port", "9090"]
