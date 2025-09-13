@@ -178,12 +178,13 @@ async def get_all_agents():
 ############################################################################################# 
 # Websocket 
 #############################################################################################
+import json
 @app.websocket("/chat/v1/{agent_id}")
-async def websocket_endpoint(agent_id: str, websocket: WebSocket, user_agent: str = Query(None)):
+async def websocket_endpoint(agent_id: str, websocket: WebSocket, user_agent: str = Query(None), context_data: str = Query(None)):
     logger.info("Connected to ws")
     await websocket.accept()
     active_websockets.append(websocket)
-    agent_config, context_data = None, None
+    agent_config = None
     try:
         retrieved_agent_config = await redis_client.get(agent_id)
         logger.info(
@@ -193,7 +194,9 @@ async def websocket_endpoint(agent_id: str, websocket: WebSocket, user_agent: st
         traceback.print_exc()
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    assistant_manager = AssistantManager(agent_config, websocket, agent_id)
+    parsed_context_data = json.loads(context_data) if context_data else None
+
+    assistant_manager = AssistantManager(agent_config, websocket, agent_id, context_data=parsed_context_data)
 
     try:
         async for index, task_output in assistant_manager.run(local=True):

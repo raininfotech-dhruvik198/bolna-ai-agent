@@ -53,6 +53,45 @@ services:
       - bolna-app
     env_file:
       - .env
+    volumes:
+      - ./call_list.csv:/app/call_list.csv
+
+  plivo-app:
+    build:
+      context: .
+      dockerfile: dockerfiles/plivo_server.Dockerfile
+    image: plivo-app:latest  # This will tag the built image
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redis
+      - ngrok
+      - bolna-app
+    env_file:
+      - .env
+
+  # Service to run the outbound calling script
+  # To run this service, use the following command:
+  # AGENT_ID=<your-agent-id> docker-compose run --rm outbound-caller
+  outbound-caller:
+    build:
+      context: .
+      dockerfile: dockerfiles/twilio_server.Dockerfile # Re-using the twilio-app image
+    image: outbound-caller:latest
+    volumes:
+      - ./call_list.csv:/app/call_list.csv
+      - ./outbound_call_manager.py:/app/outbound_call_manager.py
+    depends_on:
+      - twilio-app
+    env_file:
+      - .env
+    environment:
+      - AGENT_ID=${AGENT_ID}
+    command: >
+      sh -c "
+        pip install requests
+        python outbound_call_manager.py --agent_id $$AGENT_ID
+      "
 
   whisper-app:
     build:
@@ -75,17 +114,3 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-
-  plivo-app:
-    build:
-      context: .
-      dockerfile: dockerfiles/plivo_server.Dockerfile
-    image: plivo-app:latest  # This will tag the built image
-    ports:
-      - "8002:8002"
-    depends_on:
-      - redis
-      - ngrok
-      - bolna-app
-    env_file:
-      - .env
