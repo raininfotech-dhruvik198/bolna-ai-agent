@@ -1,7 +1,7 @@
-<h1 align="center">
-</h1>
+# Bolna: End-to-End Open Source Voice Agents Platform
+
 <p align="center">
-  <p align="center"><b>End-to-end open-source voice agents platform</b>: Quickly build voice firsts conversational assistants through a json. </p>
+  <strong>Build powerful, voice-first conversational assistants with a simple JSON configuration.</strong>
 </p>
 
 <h4 align="center">
@@ -23,193 +23,335 @@
 </h4>
 
 > [!NOTE]
-> We are actively looking for maintainers.
+> We are actively looking for maintainers. If you're passionate about conversational AI, we'd love to have you on board!
 
-## Introduction
+## 🚀 Introduction
 
-**[Bolna](https://bolna.ai)** is the end-to-end open source production ready framework for quickly building LLM based voice driven conversational applications.
+Bolna is an open-source, end-to-end framework designed for developers to rapidly build, deploy, and manage sophisticated LLM-based voice-driven conversational applications. It serves as a robust orchestration platform that seamlessly integrates various Automatic Speech Recognition (ASR), Large Language Model (LLM), and Text-to-Speech (TTS) providers. With Bolna, you can define complex conversational flows, create specialized agents, and connect them to telephony systems like Twilio and Plivo, all through a declarative JSON configuration.
 
-## Demo
-https://github.com/bolna-ai/bolna/assets/1313096/2237f64f-1c5b-4723-b7e7-d11466e9b226
+Whether you're building a customer service bot, a personal assistant, or an interactive voice response (IVR) system, Bolna provides the tools and flexibility you need to create natural and engaging voice experiences.
 
+### Key Features
 
-## What is this repository?
-This repository contains the entire orchestration platform to build voice AI applications. It technically orchestrates voice conversations using combination of different ASR+LLM+TTS providers and models over websockets.
+- **Declarative Agent Configuration**: Define your agent's behavior, tools, and conversational flow using a simple yet powerful JSON structure.
+- **Multi-Provider Support**: Integrate with a wide range of ASR, LLM, and TTS providers, including Deepgram, Azure, OpenAI, ElevenLabs, and more.
+- **Extensible & Modular**: The modular architecture allows you to easily add new providers, agents, and functionalities.
+- **Telephony Integration**: Built-in support for major telephony providers like Twilio and Plivo.
+- **State Management**: Robust state and context management to handle complex, multi-turn conversations.
+- **Local Development**: A Dockerized local setup for easy development and testing.
+- **Scalable & Production-Ready**: Designed to handle real-world traffic and scale with your needs.
 
+## 📂 Repository Structure
 
-## Components
-Bolna helps you create AI Voice Agents which can be instructed to do tasks beginning with:
+Here's a breakdown of the Bolna repository's structure:
 
-1. Orchestration platform (this open source repository)
-2. Hosted APIs (https://docs.bolna.ai/api-reference/introduction) built on top of this orchestration platform [currently closed source]
-3. No-code UI playground at https://platform.bolna.ai/ using the hosted APIs + tailwind CSS [currently closed source]
-
-
-## Development philosophy
-1. Any integration, enhancement or feature initially lands on this open source package since it forms the backbone of our Hosted APIs and dashboard
-2. Post that we expose APIs or make changes to existing APIs as required for the same
-3. Thirdly, we push it to the UI dashboard
-
-```mermaid
-graph LR;
-    A[Bolna open source] -->B[Hosted APIs];
-    B[Hosted APIs] --> C[Hosted Playground]
+```
+.
+├── bolna/                  # Core application source code
+│   ├── agent_manager/      # Manages different types of agents (assistant, task-based)
+│   ├── agent_types/        # Defines various agent types (e.g., conversational, summarization)
+│   ├── classification/     # Components for classifying user intent or sentiment
+│   ├── helpers/            # Utility functions and helper classes
+│   ├── input_handlers/     # Handles incoming data from various sources (e.g., telephony)
+│   ├── llms/               # Integrations with Large Language Models (LLMs)
+│   ├── memory/             # Manages conversation history and state
+│   ├── output_handlers/    # Handles outgoing data to various sinks (e.g., telephony)
+│   ├── synthesizer/        # Text-to-Speech (TTS) integrations
+│   └── transcriber/        # Automatic Speech Recognition (ASR) integrations
+├── local_setup/            # Docker-based local development environment
+│   ├── dockerfiles/        # Dockerfiles for various services
+│   ├── presets/            # Preset configurations and data
+│   └── telephony_server/   # Example telephony API servers (Twilio, Plivo)
+├── API.md                  # Detailed API documentation
+├── LICENSE                 # Project license
+├── pyproject.toml          # Project metadata and dependencies
+└── requirements.txt        # Python package dependencies
 ```
 
-## Supported providers and models
-1. Initiating a phone call using telephony providers like `Twilio`, `Plivo`, `Exotel` (coming soon), `Vonage` (coming soon) etc.
-2. Transcribing the conversations using `Deepgram`, `Azure` etc.
-3. Using LLMs like `OpenAI`, `DeepSeek`, `Llama`, `Cohere`, `Mistral`,  etc to handle conversations
-4. Synthesizing LLM responses back to telephony using `AWS Polly`, `ElevenLabs`, `Deepgram`, `OpenAI`, `Azure`, `Cartesia`, `Smallest` etc.
+## 🧠 Core Concepts
 
+To understand Bolna, it's essential to grasp its core concepts:
 
-Refer to the [docs](https://docs.bolna.ai/providers) for a deepdive into all supported providers.
+- **Agents**: An agent is the primary actor in the Bolna ecosystem. It's a conversational entity that you configure to perform specific tasks. Each agent is defined by its name, type, and a set of tasks it can execute.
 
+- **Tasks**: A task represents a specific goal or a piece of a conversational flow that an agent can perform. For example, a task could be a simple conversation, data extraction, or a summarization. Each task has its own configuration, including the tools it uses and its prompt.
 
-## Local example setup [will be moved to a different repository]
-A basic local setup includes usage of [Twilio](local_setup/telephony_server/twilio_api_server.py) or [Plivo](local_setup/telephony_server/plivo_api_server.py) for telephony. We have dockerized the setup in `local_setup/`. One will need to populate an environment `.env` file from `.env.sample`.
+- **Pipelines**: A pipeline is a sequence of tools that process data in a specific order. For example, a typical conversational pipeline would be `transcriber -> llm -> synthesizer`. Bolna's toolchain allows you to define parallel or sequential pipelines, giving you fine-grained control over the data flow.
 
-The setup consists of four containers:
+- **Tools (Providers)**: Tools are the building blocks of pipelines. They are integrations with external services that perform specific functions. Bolna has three main types of tools:
+  - **Transcriber (ASR)**: Converts spoken language into text.
+  - **LLM**: Processes the transcribed text and generates a response.
+  - **Synthesizer (TTS)**: Converts the LLM's text response back into speech.
 
-1. Telephony web server:
-   * Choosing Twilio: for initiating the calls one will need to set up a [Twilio account](https://www.twilio.com/docs/usage/tutorials/how-to-use-your-free-trial-account)
-   * Choosing Plivo: for initiating the calls one will need to set up a [Plivo account](https://www.plivo.com/)
-2. Bolna server: for creating and handling agents 
-3. `ngrok`: for tunneling. One will need to add the `authtoken` to `ngrok-config.yml`
-4. `redis`: for persisting agents & prompt data
+- **Input/Output Handlers**: These components manage the flow of data to and from external systems. For telephony, the input handler receives audio from the telephony provider, and the output handler sends audio back.
 
-### Quick Start
+## 🌊 Workflow
 
-The easiest way to get started is to use the provided script:
+A typical Bolna workflow for a voice conversation looks like this:
+
+1.  **Initiation**: A call is initiated through a telephony provider (e.g., Twilio). The provider connects to your Bolna server via a webhook.
+2.  **Agent Creation**: You create an agent by sending a `POST` request to the `/agent` endpoint with a JSON configuration. This configuration specifies the agent's name, tasks, and the providers it will use.
+3.  **Connection**: The telephony provider establishes a WebSocket connection with the Bolna server.
+4.  **Input Handling**: The `input_handler` receives the audio stream from the telephony provider.
+5.  **Transcription**: The audio is forwarded to the `transcriber`, which converts it into text.
+6.  **LLM Processing**: The transcribed text is sent to the `llm`, which processes it based on the agent's prompt and generates a response.
+7.  **Synthesis**: The LLM's text response is sent to the `synthesizer`, which converts it into audio.
+8.  **Output Handling**: The `output_handler` streams the synthesized audio back to the telephony provider over the WebSocket connection.
+9.  **Termination**: The call is terminated when the conversation ends or when a hangup condition is met.
+
+Here's a visual representation of the workflow:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant TelephonyProvider as Telephony Provider (e.g., Twilio)
+    participant BolnaServer as Bolna Server
+    participant Transcriber
+    participant LLM
+    participant Synthesizer
+
+    User->>+TelephonyProvider: Dials number
+    TelephonyProvider->>+BolnaServer: Initiates WebSocket connection
+    loop Audio Stream
+        User->>TelephonyProvider: Speaks
+        TelephonyProvider->>BolnaServer: Streams audio
+        BolnaServer->>+Transcriber: Forwards audio
+        Transcriber-->>-BolnaServer: Returns transcribed text
+        BolnaServer->>+LLM: Sends text
+        LLM-->>-BolnaServer: Returns response text
+        BolnaServer->>+Synthesizer: Sends response text
+        Synthesizer-->>-BolnaServer: Returns synthesized audio
+        BolnaServer->>TelephonyProvider: Streams audio back
+        TelephonyProvider->>User: Plays audio
+    end
+    User->>-TelephonyProvider: Hangs up
+    TelephonyProvider->>-BolnaServer: Closes connection
+```
+
+## 🚀 Getting Started
+
+Follow these steps to set up your local development environment and start building your own voice agents.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/) (V2)
+- An `ngrok` authtoken (for tunneling)
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/bolna-ai/bolna.git
+cd bolna
+```
+
+### 2. Configure Environment Variables
+
+The `local_setup` directory contains a sample environment file, `.env.sample`. You'll need to create a `.env` file from this sample and populate it with your own API keys and credentials.
 
 ```bash
 cd local_setup
+cp .env.sample .env
+```
+
+Now, open `.env` and fill in the required values for the ASR, LLM, TTS, and telephony providers you want to use.
+
+### 3. Configure ngrok
+
+You need to add your `ngrok` authtoken to the `ngrok-config.yml` file in the `local_setup` directory.
+
+```yaml
+# local_setup/ngrok-config.yml
+authtoken: YOUR_NGROK_AUTHTOKEN
+version: 2
+```
+
+### 4. Start the Services
+
+We've provided a convenient script to get you up and running quickly.
+
+```bash
 chmod +x start.sh
 ./start.sh
 ```
 
-This script will check for Docker dependencies, build all services with BuildKit enabled, and start them in detached mode.
+This script will:
+- Check for Docker dependencies.
+- Build all the necessary Docker images using BuildKit.
+- Start the services (Bolna server, telephony server, ngrok, Redis) in detached mode.
 
-### Manual Setup
-
-Alternatively, you can manually build and run the services:
-
-1. Make sure you have Docker with Docker Compose V2 installed
-2. Enable BuildKit for faster builds:
-   ```bash
-   export DOCKER_BUILDKIT=1
-   export COMPOSE_DOCKER_CLI_BUILD=1
-   ```
-3. Build the images:
-   ```bash
-   docker compose build
-   ```
-4. Run the services:
-   ```bash
-   docker compose up -d
-   ```
-
-To run specific services only:
+Alternatively, you can build and run the services manually:
 
 ```bash
-docker compose up -d bolna-app twilio-app
-# or
-docker compose up -d bolna-app plivo-app
+# Enable Docker BuildKit for faster builds
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# Build the images
+docker compose build
+
+# Run the services
+docker compose up -d
 ```
 
-Once the docker containers are up, you can now start to create your agents and instruct them to initiate calls.
+### 5. Verify the Setup
 
+Once the services are running, you can check the logs to ensure everything is working correctly.
 
-## Example agents to create, use and start making calls
-You may try out different agents from [example.bolna.dev](https://examples.bolna.dev).
+```bash
+docker compose logs -f
+```
 
+You should see logs from the `bolna-app`, `twilio-app` (or `plivo-app`), and `ngrok` containers. The `ngrok` logs will show you the public URL that you can use to connect your telephony provider to your local Bolna server.
 
-## Using your own providers
-You can populate the `.env` file to use your own keys for providers.
+## 🤖 Creating an Agent
 
-<details>
+Once your local environment is up and running, you can create a new agent by sending a `POST` request to the `/agent` endpoint. The request body should be a JSON object that defines the agent's configuration and prompts.
 
-<summary>ASR Providers</summary><br>
-These are the current supported ASRs Providers:
+**Endpoint:** `POST /agent`
 
-| Provider     | Environment variable to be added in `.env` file |
-|--------------|-------------------------------------------------|
-| Deepgram     | `DEEPGRAM_AUTH_TOKEN`                           |
+### Example Agent Configuration
 
-</details>
-&nbsp;<br>
+Here's an example of a simple conversational agent that uses Twilio for telephony, Deepgram for transcription, OpenAI for the LLM, and ElevenLabs for synthesis.
 
-<details>
-<summary>LLM Providers</summary><br>
-Bolna uses LiteLLM package to support multiple LLM integrations.
+```json
+{
+  "agent_config": {
+      "agent_name": "EchoBot",
+      "agent_type": "conversation",
+      "tasks": [
+          {
+              "task_type": "conversation",
+              "toolchain": {
+                  "execution": "parallel",
+                  "pipelines": [
+                      [
+                          "transcriber",
+                          "llm",
+                          "synthesizer"
+                      ]
+                  ]
+              },
+              "tools_config": {
+                  "input": {
+                      "provider": "twilio",
+                      "format": "wav"
+                  },
+                  "output": {
+                      "provider": "twilio",
+                      "format": "wav"
+                  },
+                  "transcriber": {
+                      "provider": "deepgram",
+                      "language": "en",
+                      "stream": true
+                  },
+                  "llm_agent": {
+                      "provider": "openai",
+                      "model": "gpt-4o-mini"
+                  },
+                  "synthesizer": {
+                      "provider": "elevenlabs",
+                      "voice": "George",
+                      "stream": true
+                  }
+              }
+          }
+      ]
+  },
+  "agent_prompts": {
+      "task_1": {
+          "system_prompt": "You are a helpful echo assistant. Repeat everything the user says."
+      }
+  }
+}
+```
 
-These are the current supported LLM Provider Family:
-https://github.com/bolna-ai/bolna/blob/10fa26e5985d342eedb5a8985642f12f1cf92a4b/bolna/providers.py#L30-L47
+### Key Configuration Parameters
 
-For LiteLLM based LLMs, add either of the following to the `.env` file depending on your use-case:<br><br>
-`LITELLM_MODEL_API_KEY`: API Key of the LLM<br>
-`LITELLM_MODEL_API_BASE`: URL of the hosted LLM<br>
-`LITELLM_MODEL_API_VERSION`: API VERSION for LLMs like Azure
+- **`agent_name`**: A unique name for your agent.
+- **`agent_type`**: The type of agent (e.g., `conversation`, `extraction`).
+- **`tasks`**: A list of tasks the agent can perform.
+- **`toolchain`**: Defines the pipelines and the execution order of the tools.
+- **`tools_config`**: Specifies the configuration for each tool (input, output, transcriber, llm, synthesizer).
+- **`agent_prompts`**: The prompts for each task. The keys should correspond to the task index (e.g., `task_1`).
 
-For LLMs hosted via VLLM, add the following to the `.env` file:<br>
-`VLLM_SERVER_BASE_URL`: URL of the hosted LLM using VLLM
+Upon successful creation, the API will respond with the `agent_id` and the state of the agent.
 
-</details>
-&nbsp;<br>
+```json
+{
+    "agent_id": "your-unique-agent-id",
+    "state": "created"
+}
+```
 
-<details>
+## 🔌 Supported Providers
 
-<summary>TTS Providers</summary><br>
-These are the current supported TTS Providers:
-https://github.com/bolna-ai/bolna/blob/c8a0d1428793d4df29133119e354bc2f85a7ca76/bolna/providers.py#L7-L14
+Bolna supports a variety of providers for transcription, language modeling, synthesis, and telephony. To use a specific provider, you'll need to set the corresponding environment variables in your `.env` file.
 
-| Provider   | Environment variable to be added in `.env` file  |
-|------------|--------------------------------------------------|
-| AWS Polly  | Accessed from system wide credentials via ~/.aws |
-| Elevenlabs | `ELEVENLABS_API_KEY`                             |
-| OpenAI     | `OPENAI_API_KEY`                                 |
-| Deepgram   | `DEEPGRAM_AUTH_TOKEN`                            |
-| Cartesia   | `CARTESIA_API_KEY`                            |
-| Smallest   | `SMALLEST_API_KEY`                            |
+### ASR (Transcriber) Providers
 
-</details>
-&nbsp;<br>
+| Provider   | Environment Variable      |
+|------------|---------------------------|
+| Deepgram   | `DEEPGRAM_AUTH_TOKEN`     |
+| Azure      | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` |
+| Bodhi      | `BODHI_API_KEY`           |
 
-<details>
+### LLM Providers
 
-<summary>Telephony Providers</summary><br>
-These are the current supported Telephony Providers:
+Bolna uses LiteLLM to support a wide range of LLM providers. For most providers, you'll need to set the following environment variables:
 
-| Provider | Environment variable to be added in `.env` file                                                                                                                    |
-|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Twilio   | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`|
-| Plivo    | `PLIVO_AUTH_ID`, `PLIVO_AUTH_TOKEN`, `PLIVO_PHONE_NUMBER`|
+| Variable                 | Description                             |
+|--------------------------|-----------------------------------------|
+| `LITELLM_MODEL_API_KEY`  | API key for the LLM service             |
+| `LITELLM_MODEL_API_BASE` | Base URL for the LLM API (if self-hosted) |
 
-</details>
+For specific providers or configurations, refer to the LiteLLM documentation.
 
-## Open-source v/s Hosted APIs
-**We have in the past tried to maintain both the open source and the hosted solution (via APIs and a UI dashboard)**.
+### TTS (Synthesizer) Providers
 
-We have fluctuated b/w maintaining this repository purely from a point of time crunch and not interest.
+| Provider   | Environment Variable      | Notes                               |
+|------------|---------------------------|-------------------------------------|
+| AWS Polly  | -                         | Uses system-wide AWS credentials    |
+| ElevenLabs | `ELEVENLABS_API_KEY`      |                                     |
+| OpenAI     | `OPENAI_API_KEY`          |                                     |
+| Deepgram   | `DEEPGRAM_AUTH_TOKEN`     |                                     |
+| Cartesia   | `CARTESIA_API_KEY`        |                                     |
+| Smallest   | `SMALLEST_API_KEY`        |                                     |
+| Azure      | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` |                                     |
+| Rime       | `RIME_API_KEY`            |                                     |
+| Sarvam     | `SARVAM_API_KEY`          |                                     |
 
-Currently, we are continuing to maintain it for the community and improving the adoption of Voice AI.
+### Telephony Providers
 
-Though the repository is completely open source, you can connect with us if interested in managed hosted offerings or more customized solutions.
-<a href="https://calendly.com/bolna/30min"><img alt="Schedule a meeting" src="https://cdn.cookielaw.org/logos/122ecfc3-4694-42f1-863f-2db42d1b1e68/0bcbbcf4-9b83-4684-ba59-bc913c0d5905/c21bea90-f4f1-43d1-8118-8938bbb27a9d/logo.png" /></a>
+| Provider | Environment Variables                                    |
+|----------|----------------------------------------------------------|
+| Twilio   | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` |
+| Plivo    | `PLIVO_AUTH_ID`, `PLIVO_AUTH_TOKEN`, `PLIVO_PHONE_NUMBER`       |
+| Exotel   | `EXOTEL_API_KEY`, `EXOTEL_API_TOKEN`, `EXOTEL_SUBDOMAIN` |
 
-## Extending with other Telephony Providers
-In case you wish to extend and add some other Telephony like Vonage, Telnyx, etc. following the guidelines below:
-1. Make sure bi-directional streaming is supported by the Telephony provider
-2. Add the telephony-specific input handler file in [input_handlers/telephony_providers](https://github.com/bolna-ai/bolna/tree/master/bolna/input_handlers/telephony_providers) writing custom functions extending from the [telephony.py](https://github.com/bolna-ai/bolna/blob/master/bolna/input_handlers/telephony.py) class
-   1. This file will mainly contain how different types of event packets are being ingested from the telephony provider
-3. Add telephony-specific output handler file in [output_handlers/telephony_providers](https://github.com/bolna-ai/bolna/tree/master/bolna/output_handlers/telephony_providers) writing custom functions extending from the [telephony.py](https://github.com/bolna-ai/bolna/blob/master/bolna/output_handlers/telephony.py) class
-   1. This mainly concerns converting audio from the synthesizer class to a supported audio format and streaming it over the websocket provided by the telephony provider
-4. Lastly, you'll have to write a dedicated server like the example [twilio_api_server.py](https://github.com/bolna-ai/bolna/blob/master/local_setup/telephony_server/twilio_api_server.py) provided in [local_setup](https://github.com/bolna-ai/bolna/blob/master/local_setup/telephony_server) to initiate calls over websockets.
+## 🛠️ Extending Bolna
 
+Bolna is designed to be extensible. If you want to add a new telephony provider (e.g., Vonage, Telnyx), follow these steps:
 
-## Contributing
-We love all types of contributions: whether big or small helping in improving this community resource.
+1.  **Ensure Bidirectional Streaming**: The telephony provider must support bidirectional audio streaming over WebSockets.
+2.  **Create an Input Handler**: Add a new file in `bolna/input_handlers/telephony_providers` that extends the `TelephonyInput` class. This class will handle incoming event packets from the provider.
+3.  **Create an Output Handler**: Add a new file in `bolna/output_handlers/telephony_providers` that extends the `TelephonyOutput` class. This class will convert the synthesized audio to the provider's required format and stream it back over the WebSocket.
+4.  **Create a Telephony Server**: Add a new file in `local_setup/telephony_server` to create a dedicated server for your provider. This server will initiate calls and manage the WebSocket connections. You can use the `twilio_api_server.py` or `plivo_api_server.py` as a reference.
 
-1. There are a number of [open issues present](https://github.com/bolna-ai/bolna/issues) which can be good ones to start with
-2. If you have suggestions for enhancements, wish to contribute a simple fix such as correcting a typo, or want to address an apparent bug, please feel free to initiate a new issue or submit a pull request
-2. If you're contemplating a larger change or addition to this repository, be it in terms of its structure or the features, kindly begin by creating a new issue [open a new issue :octocat:](https://github.com/bolna-ai/bolna/issues/new) and outline your proposed changes. This will allow us to engage in a discussion before you dedicate a significant amount of time or effort. Your cooperation and understanding are appreciated
+## 🤔 Troubleshooting
+
+- **Docker Build Fails**: Ensure you have Docker BuildKit enabled (`export DOCKER_BUILDKIT=1`). If the build still fails, try pruning your Docker build cache (`docker builder prune`).
+- **`ngrok` Tunnel Not Working**: Double-check that your `ngrok` authtoken is correctly set in `local_setup/ngrok-config.yml`. Also, ensure that the `ngrok` container is running (`docker compose ps`).
+- **Authentication Errors**: Verify that your API keys and credentials in the `.env` file are correct and have the necessary permissions.
+- **WebSocket Connection Fails**: Make sure your telephony provider's webhook is pointing to the correct `ngrok` URL. You can find the URL in the `ngrok` container's logs.
+
+## 💡 Use Cases
+
+Bolna is a versatile framework that can be used to build a wide range of voice-driven applications, including:
+
+- **Customer Service Automation**: Create intelligent voice bots to handle customer queries, provide support, and automate common tasks.
+- **Interactive Voice Response (IVR)**: Build dynamic and natural-sounding IVR systems that can understand and respond to user requests in real-time.
+- **Personal Assistants**: Develop personalized voice assistants that can help users with tasks like scheduling, reminders, and information retrieval.
+- **Data Collection & Surveys**: Conduct automated voice-based surveys and collect data from users in a conversational manner.
+- **Sales & Lead Qualification**: Build voice agents that can qualify leads, answer product questions, and schedule demos.
