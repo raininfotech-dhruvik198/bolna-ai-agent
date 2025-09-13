@@ -15,7 +15,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ../agent_data:/app/agent_data
+      - ./agent_data:/app/agent_data
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
       - $HOME/.aws/config:/root/.aws/config:ro
 
@@ -53,6 +53,8 @@ services:
       - bolna-app
     env_file:
       - .env
+    volumes:
+      - ./call_list.csv:/app/call_list.csv
 
   plivo-app:
     build:
@@ -67,3 +69,48 @@ services:
       - bolna-app
     env_file:
       - .env
+
+  # Service to run the outbound calling script
+  # To run this service, use the following command:
+  # AGENT_ID=<your-agent-id> docker-compose run --rm outbound-caller
+  outbound-caller:
+    build:
+      context: .
+      dockerfile: dockerfiles/twilio_server.Dockerfile # Re-using the twilio-app image
+    image: outbound-caller:latest
+    volumes:
+      - ./call_list.csv:/app/call_list.csv
+      - ./outbound_call_manager.py:/app/outbound_call_manager.py
+    depends_on:
+      - twilio-app
+    env_file:
+      - .env
+    environment:
+      - AGENT_ID=${AGENT_ID}
+    command: >
+      sh -c "
+        pip install requests
+        python outbound_call_manager.py --agent_id $$AGENT_ID
+      "
+
+  whisper-app:
+    build:
+      context: .
+      dockerfile: dockerfiles/whisper_server.Dockerfile
+    image: whisper-app:latest
+    ports:
+      - "9090:9090"
+
+  xtts-app:
+    image: ghcr.io/coqui-ai/xtts-streaming-server:latest-cuda121
+    ports:
+      - "8000:80"
+    environment:
+      - COQUI_TOS_AGREED=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

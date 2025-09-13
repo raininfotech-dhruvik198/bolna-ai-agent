@@ -136,7 +136,10 @@ class GraphBasedConversationAgent(BaseAgent):
                     ind = random.randint(0, len(self.current_node.content) - 1)
                     audio_pair = self.current_node.content[ind]
                     logger.info('Agent: {}'.format(audio_pair.get('text')))
-                    yield audio_pair
+                    if "meta_data" in audio_pair:
+                        yield {**audio_pair, **audio_pair["meta_data"]}
+                    else:
+                        yield audio_pair
                 else:
                     next_state = await self._get_next_preprocessed_step(history)
                     logger.info('Agent: {}'.format(next_state))

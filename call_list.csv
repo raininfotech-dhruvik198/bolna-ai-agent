@@ -1,0 +1,3 @@
+name,recipient_phone_number,order_id,status,reschedule_date,reschedule_time
+John Doe,+15551234567,ORD123,,
+Jane Smith,+15557654321,ORD124,,

@@ -42,9 +42,12 @@ class AssistantManager(BaseManager):
         if run_id:
             self.run_id = run_id
 
-        input_parameters = None
+        aggregated_output = self.context_data.copy() if self.context_data else {}
         for task_id, task in enumerate(self.tasks):
             logger.info(f"Running task {task_id}")
+
+            input_parameters = aggregated_output.copy()
+
             task_manager = TaskManager(self.agent_config.get("agent_name", self.agent_config.get("assistant_name")),
                                        task_id, task, self.websocket,
                                        context_data=self.context_data, input_parameters=input_parameters,
@@ -58,8 +61,10 @@ class AssistantManager(BaseManager):
             task_output['run_id'] = self.run_id
             yield task_id, copy.deepcopy(task_output)
             self.task_states[task_id] = True
-            if task_id == 0:
-                input_parameters = task_output
-            if task["task_type"] == "extraction":
-                input_parameters["extraction_details"] = task_output["extracted_data"]
+
+            if task_output:
+                aggregated_output.update(task_output)
+
+            if task["task_type"] == "extraction" and "extracted_data" in task_output:
+                aggregated_output["extraction_details"] = task_output["extracted_data"]
         logger.info("Done with execution of the agent")
