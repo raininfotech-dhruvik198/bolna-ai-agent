@@ -13,7 +13,7 @@ RUN git clone https://github.com/ggerganov/whisper.cpp.git /opt/whisper.cpp
 
 # Build the server
 WORKDIR /opt/whisper.cpp
-RUN cmake -B build
+RUN cmake -B build -DWHISPER_BUILD_EXAMPLES=ON
 RUN cmake --build build -j --config Release
 
 # Download a model
