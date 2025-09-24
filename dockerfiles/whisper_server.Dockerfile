@@ -23,4 +23,4 @@ RUN bash ./models/download-ggml-model.sh base.en
 EXPOSE 9090
 
 # Command to run the server
-CMD ["./build/bin/server", "-m", "models/ggml-base.en.bin", "-t", "8", "--host", "0.0.0.0", "--port", "9090"]
+CMD ["./build/bin/whisper-server", "-m", "models/ggml-base.en.bin", "-t", "8", "--host", "0.0.0.0", "--port", "9090"]
